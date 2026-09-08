@@ -6,8 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.codex/observe-hook.py",
-            "_keep": "OTEL telemetry; must survive sandbox settings stripping."
+            "command": "python3 ~/.codex/observe-hook.py  # KEEP: OTEL telemetry; lifecycle payloads to the collector"
           }
         ]
       }
@@ -17,8 +16,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.codex/observe-hook.py",
-            "_keep": "OTEL telemetry; must survive sandbox settings stripping."
+            "command": "python3 ~/.codex/observe-hook.py  # KEEP: OTEL telemetry; lifecycle payloads to the collector"
           }
         ]
       }
@@ -28,8 +26,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.codex/observe-hook.py",
-            "_keep": "OTEL telemetry; must survive sandbox settings stripping."
+            "command": "python3 ~/.codex/observe-hook.py  # KEEP: OTEL telemetry; lifecycle payloads to the collector"
           }
         ]
       }
@@ -39,8 +36,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.codex/observe-hook.py",
-            "_keep": "OTEL telemetry; must survive sandbox settings stripping."
+            "command": "python3 ~/.codex/observe-hook.py  # KEEP: OTEL telemetry; lifecycle payloads to the collector"
           }
         ]
       }
@@ -50,8 +46,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.codex/observe-hook.py",
-            "_keep": "OTEL telemetry; must survive sandbox settings stripping."
+            "command": "python3 ~/.codex/observe-hook.py  # KEEP: OTEL telemetry; lifecycle payloads to the collector"
           }
         ]
       }
@@ -61,8 +56,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.codex/observe-hook.py",
-            "_keep": "OTEL telemetry; must survive sandbox settings stripping."
+            "command": "python3 ~/.codex/observe-hook.py  # KEEP: OTEL telemetry; lifecycle payloads to the collector"
           }
         ]
       }
@@ -72,8 +66,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.codex/observe-hook.py",
-            "_keep": "OTEL telemetry; must survive sandbox settings stripping."
+            "command": "python3 ~/.codex/observe-hook.py  # KEEP: OTEL telemetry; lifecycle payloads to the collector"
           }
         ]
       }
@@ -83,8 +76,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.codex/observe-hook.py",
-            "_keep": "OTEL telemetry; must survive sandbox settings stripping."
+            "command": "python3 ~/.codex/observe-hook.py  # KEEP: OTEL telemetry; lifecycle payloads to the collector"
           }
         ]
       }
@@ -94,8 +86,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.codex/observe-hook.py",
-            "_keep": "OTEL telemetry; must survive sandbox settings stripping."
+            "command": "python3 ~/.codex/observe-hook.py  # KEEP: OTEL telemetry; lifecycle payloads to the collector"
           }
         ]
       }
@@ -105,8 +96,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.codex/observe-hook.py",
-            "_keep": "OTEL telemetry; must survive sandbox settings stripping."
+            "command": "python3 ~/.codex/observe-hook.py  # KEEP: OTEL telemetry; lifecycle payloads to the collector"
           }
         ]
       }
@@ -116,8 +106,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.codex/observe-hook.py",
-            "_keep": "OTEL telemetry; must survive sandbox settings stripping."
+            "command": "python3 ~/.codex/observe-hook.py  # KEEP: OTEL telemetry; lifecycle payloads to the collector"
           }
         ]
       }
