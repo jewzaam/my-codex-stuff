@@ -1,16 +1,126 @@
 {
   "description": "Record Codex lifecycle hook payloads for OTEL experiments.",
   "hooks": {
-    "SessionStart": [{"hooks": [{"type": "command", "command": "python3 ~/.codex/observe-hook.py"}]}],
-    "SessionEnd": [{"hooks": [{"type": "command", "command": "python3 ~/.codex/observe-hook.py"}]}],
-    "UserPromptSubmit": [{"hooks": [{"type": "command", "command": "python3 ~/.codex/observe-hook.py"}]}],
-    "PreToolUse": [{"hooks": [{"type": "command", "command": "python3 ~/.codex/observe-hook.py"}]}],
-    "PermissionRequest": [{"hooks": [{"type": "command", "command": "python3 ~/.codex/observe-hook.py"}]}],
-    "PostToolUse": [{"hooks": [{"type": "command", "command": "python3 ~/.codex/observe-hook.py"}]}],
-    "PreCompact": [{"hooks": [{"type": "command", "command": "python3 ~/.codex/observe-hook.py"}]}],
-    "PostCompact": [{"hooks": [{"type": "command", "command": "python3 ~/.codex/observe-hook.py"}]}],
-    "SubagentStart": [{"hooks": [{"type": "command", "command": "python3 ~/.codex/observe-hook.py"}]}],
-    "SubagentStop": [{"hooks": [{"type": "command", "command": "python3 ~/.codex/observe-hook.py"}]}],
-    "Stop": [{"hooks": [{"type": "command", "command": "python3 ~/.codex/observe-hook.py"}]}]
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.codex/observe-hook.py",
+            "_keep": "OTEL telemetry; must survive sandbox settings stripping."
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.codex/observe-hook.py",
+            "_keep": "OTEL telemetry; must survive sandbox settings stripping."
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.codex/observe-hook.py",
+            "_keep": "OTEL telemetry; must survive sandbox settings stripping."
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.codex/observe-hook.py",
+            "_keep": "OTEL telemetry; must survive sandbox settings stripping."
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.codex/observe-hook.py",
+            "_keep": "OTEL telemetry; must survive sandbox settings stripping."
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.codex/observe-hook.py",
+            "_keep": "OTEL telemetry; must survive sandbox settings stripping."
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.codex/observe-hook.py",
+            "_keep": "OTEL telemetry; must survive sandbox settings stripping."
+          }
+        ]
+      }
+    ],
+    "PostCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.codex/observe-hook.py",
+            "_keep": "OTEL telemetry; must survive sandbox settings stripping."
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.codex/observe-hook.py",
+            "_keep": "OTEL telemetry; must survive sandbox settings stripping."
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.codex/observe-hook.py",
+            "_keep": "OTEL telemetry; must survive sandbox settings stripping."
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.codex/observe-hook.py",
+            "_keep": "OTEL telemetry; must survive sandbox settings stripping."
+          }
+        ]
+      }
+    ]
   }
 }
