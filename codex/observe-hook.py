@@ -46,10 +46,15 @@ resource.setdefault("host.name", os.environ.get("HOSTNAME") or socket.gethostnam
 # payload cwd is all there is.
 project = resource.get("project") or os.environ.get("CODEX_PROJECT") or payload.get("cwd") or ""
 resource["project"] = project
+conversation_id = payload.get("conversation_id") or payload.get("session_id", "")
 
 attributes = {
     "event_name": f"codex.hook.{event or 'unknown'}",
-    "session_id": payload.get("session_id", ""),
+    # Native Codex telemetry calls this identity conversation_id. Keep the
+    # recording-rule/session-state name for compatibility, but prefer the
+    # native name when the hook payload provides both fields.
+    "session_id": conversation_id,
+    "conversation_id": conversation_id,
     "cwd": payload.get("cwd", ""),
     "project": project,
     "model": payload.get("model", ""),
