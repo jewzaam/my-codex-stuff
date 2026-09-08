@@ -3,6 +3,7 @@
 
 import json
 import os
+import socket
 import sys
 import time
 import urllib.request
@@ -34,6 +35,10 @@ event = payload.get("hook_event_name", "")
 # in step with whatever the host decides to put in it.
 resource = parse_resource_attributes(os.environ.get("OTEL_RESOURCE_ATTRIBUTES", ""))
 resource["service.name"] = "codex-hook-observer"
+# Bare host sessions may invoke Codex without a wrapper that sources the
+# machine environment. Preserve an injected sandbox host name; otherwise use
+# the local machine name so recording rules can identify the session.
+resource.setdefault("host.name", os.environ.get("HOSTNAME") or socket.gethostname())
 
 # The environment's project wins: bin/codex-wrapper.sh appends CODEX_PROJECT to
 # OTEL_RESOURCE_ATTRIBUTES, and in a sandbox .env carries the host-side sandbox
