@@ -19,7 +19,7 @@ test-unit:  ## Run unit tests
 	$(PYTHON) -m unittest discover -s tests -v
 
 test-quality:  ## Validate Python, TOML, and JSON files
-	$(PYTHON) -m py_compile scripts/reconcile.py codex/observe-hook.py tests/test_reconcile.py
+	$(PYTHON) -m py_compile scripts/reconcile.py codex/observe-hook.py tests/test_reconcile.py tests/test_hooks.py
 	$(PYTHON) -c 'import json, pathlib, tomllib; root = pathlib.Path("."); json.loads((root / "codex/hooks.json").read_text()); tomllib.loads((root / "codex/config.toml").read_text())'
 
 help:  ## Show available targets
