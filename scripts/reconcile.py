@@ -4,12 +4,54 @@
 import json
 import os
 import re
-import shutil
 import tomllib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 CODEX_DIR = Path(os.environ.get("CODEX_DIR", Path.home() / ".codex"))
+
+# Skills that need a Codex hook ship the registration as data next to the hook
+# script, and skills are installed under ~/.claude even when the hook they
+# register is for Codex. Reading it from there is what keeps the skill the only
+# place its own registration is written down; copying it into codex/hooks.json
+# would make this repo a second source that drifts the moment the skill changes
+# its events or its path.
+CLAUDE_DIR = Path(os.environ.get("CLAUDE_DIR", Path.home() / ".claude"))
+SKILL_HOOK_FRAGMENTS = "skills/*/hooks/register.codex.json"
+
+
+def skill_hook_fragments(claude_dir=None):
+    """Codex hook registrations shipped by installed skills, sorted by path."""
+    base = CLAUDE_DIR if claude_dir is None else claude_dir
+    return sorted(base.glob(SKILL_HOOK_FRAGMENTS))
+
+
+def merge_hooks(base, fragment):
+    """Union each event's rule list, deduplicating identical rules.
+
+    Not `merge()`: that replaces lists wholesale, so a skill registering
+    PostToolUse would silently drop observe-hook.py from that event and take
+    the telemetry with it.
+    """
+    merged = json.loads(json.dumps(base))
+    hooks = merged.setdefault("hooks", {})
+    for event, rules in (fragment.get("hooks") or {}).items():
+        existing = hooks.setdefault(event, [])
+        seen = {json.dumps(rule, sort_keys=True) for rule in existing}
+        for rule in rules:
+            key = json.dumps(rule, sort_keys=True)
+            if key not in seen:
+                existing.append(rule)
+                seen.add(key)
+    return merged
+
+
+def desired_hooks(source, claude_dir=None):
+    """The repo's hooks.json with every installed skill's hooks folded in."""
+    data = json.loads(source.read_text(encoding="utf-8"))
+    for fragment in skill_hook_fragments(claude_dir):
+        data = merge_hooks(data, json.loads(fragment.read_text(encoding="utf-8")))
+    return data
 
 
 def merge(dest, source):
@@ -101,10 +143,9 @@ def main():
     changed = reconcile_file(ROOT / "codex/config.toml", CODEX_DIR / "config.toml")
     source = ROOT / "codex/hooks.json"
     destination = CODEX_DIR / "hooks.json"
-    if not destination.exists() or json.loads(destination.read_text()) != json.loads(
-        source.read_text()
-    ):
-        shutil.copy2(source, destination)
+    desired = desired_hooks(source)
+    if not destination.exists() or json.loads(destination.read_text()) != desired:
+        destination.write_text(json.dumps(desired, indent=2) + "\n", encoding="utf-8")
         changed = True
     print("Codex config updated." if changed else "Codex config already in sync.")
 
