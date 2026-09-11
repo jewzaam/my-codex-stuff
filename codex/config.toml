@@ -1,5 +1,17 @@
 model = "gpt-5.6-luna"
 model_reasoning_effort = "medium"
+# The model catalog bundled with codex 0.152.0 gives gpt-5.6-luna
+# context_window = 272000 and max_context_window = 872000; this opts into the
+# larger one. Paired with the model above, not independent of it: gpt-5.5 caps
+# at 272000, so switching models means revisiting this line.
+model_context_window = 872000
+# Auto-compact as a last-resort net, not routine: the catalog pins
+# auto_compact_token_limit = null for every shipped model, so with this key
+# unset the threshold is derived from the window and cannot be read back
+# offline. `total` counts the whole window; `body_after_prefix` excludes the
+# prompt prefix, which moves the real trigger point as the prefix grows.
+model_auto_compact_token_limit = 860000
+model_auto_compact_token_limit_scope = "total"
 
 [tui]
 auto_recap = false
