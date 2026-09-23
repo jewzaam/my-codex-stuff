@@ -1,5 +1,5 @@
 {
-  "description": "Record Codex lifecycle hook payloads for OTEL experiments.",
+  "description": "Codex hooks: OTEL lifecycle telemetry, plus the PreToolUse guards from the my-claude-stuff `harness_guards` package (installed via `make install-guards`, never copied here). The guards carry no `# KEEP:` marker, so openshell-sandbox strips them out of a sandbox, where the network policy is the boundary instead.",
   "hooks": {
     "SessionStart": [
       {
@@ -37,6 +37,22 @@
           {
             "type": "command",
             "command": "python3 ~/.codex/observe-hook.py  # KEEP: OTEL telemetry; lifecycle payloads to the collector"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -m harness_guards.block_commands"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -m harness_guards.block_paths"
           }
         ]
       }
