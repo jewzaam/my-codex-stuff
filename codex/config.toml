@@ -13,6 +13,10 @@ model_context_window = 872000
 model_auto_compact_token_limit = 860000
 model_auto_compact_token_limit_scope = "total"
 
+[agents]
+default_subagent_model = "gpt-6-luna"
+default_subagent_reasoning_effort = "high"
+
 [tui]
 auto_recap = false
 
