@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """Export Codex hook input to the local OTLP collector."""
 
+import hashlib
 import json
 import os
 import socket
 import sys
 import time
 import urllib.request
+from pathlib import Path
 
 def parse_resource_attributes(raw):
     """Parse OTEL_RESOURCE_ATTRIBUTES (W3C Baggage-ish: comma-separated k=v)."""
@@ -40,13 +42,44 @@ resource["service.name"] = "codex-hook-observer"
 # the local machine name so recording rules can identify the session.
 resource.setdefault("host.name", os.environ.get("HOSTNAME") or socket.gethostname())
 
-# The environment's project wins: bin/codex-wrapper.sh appends CODEX_PROJECT to
+# Pin host project at SessionStart so an app-level project root cannot win.
 # OTEL_RESOURCE_ATTRIBUTES, and in a sandbox .env carries the host-side sandbox
-# directory. The local fallback is for a bare `codex` with no wrapper, where the
-# payload cwd is all there is.
-project = resource.get("project") or os.environ.get("CODEX_PROJECT") or payload.get("cwd") or ""
-resource["project"] = project
+# On the host, cwd supplies the launch path and the cache keeps it stable across /cd.
 conversation_id = payload.get("conversation_id") or payload.get("session_id", "")
+cwd = payload.get("cwd") or ""
+is_sandbox = cwd.startswith("/sandbox/") or any(
+    resource.get(key)
+    for key in ("sandbox.source", "sandbox.profile", "sandbox.openshell_name")
+)
+project_dir = Path(os.environ.get("CODEX_HOME") or (Path.home() / ".codex")) / "session-projects"
+project_path = (
+    project_dir / (hashlib.sha256(conversation_id.encode()).hexdigest() + ".txt")
+    if conversation_id else None
+)
+
+project = ""
+if project_path is not None and event != "SessionStart":
+    try:
+        project = project_path.read_text(encoding="utf-8").strip()
+    except OSError:
+        pass
+
+if not project:
+    if is_sandbox:
+        project = resource.get("project") or os.environ.get("CODEX_PROJECT") or cwd
+    else:
+        project = cwd or os.environ.get("CODEX_PROJECT") or resource.get("project") or ""
+    if project_path is not None and project:
+        try:
+            project_dir.mkdir(mode=0o700, parents=True, exist_ok=True)
+            os.chmod(project_dir, 0o700)
+            temp_path = project_path.with_name(f".{project_path.name}.{os.getpid()}.tmp")
+            temp_path.write_text(project, encoding="utf-8")
+            temp_path.replace(project_path)
+            os.chmod(project_path, 0o600)
+        except OSError as exc:
+            print(f"codex hook project pin failed: {exc}", file=sys.stderr)
+resource["project"] = project
 
 attributes = {
     "event_name": f"codex.hook.{event or 'unknown'}",
@@ -118,5 +151,7 @@ request = urllib.request.Request(
 try:
     with urllib.request.urlopen(request, timeout=3):
         pass
+    if event == "SessionEnd" and project_path:
+        project_path.unlink(missing_ok=True)
 except Exception as exc:
     print(f"codex hook OTLP export failed: {exc}", file=sys.stderr)
