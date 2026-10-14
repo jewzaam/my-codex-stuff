@@ -4,6 +4,7 @@ Codex configuration and hooks managed from this repository.
 
 - `codex/config.toml` -> `~/.codex/config.toml`
 - `codex/hooks.json` -> `~/.codex/hooks.json`
+- `codex/rules/*.rules` -> `~/.codex/rules/*.rules`
 - `codex/observe-hook.py` -> `~/.codex/observe-hook.py`
 
 Deploy with:
@@ -15,6 +16,13 @@ make reconcile
 `config.toml` is merged into the existing live file. Machine-specific
 `[projects]` trust entries and Codex-generated `[hooks.state]` are preserved
 locally and are intentionally not tracked.
+
+Global command permissions live in standalone `codex/rules/*.rules` files,
+named by context. Reconcile copies these files as-is and manages only the
+`my-codex-stuff-*.rules` names. Other global rule files are left alone. It
+removes the old `default.rules` only when its rules still exactly match these
+files. `make test-rules` parses the files with Codex's policy checker and is
+part of `make check`.
 
 ## harness_guards
 
