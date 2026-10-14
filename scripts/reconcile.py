@@ -4,6 +4,7 @@
 import json
 import os
 import re
+import shutil
 import tomllib
 from pathlib import Path
 
@@ -138,9 +139,50 @@ def reconcile_file(source, destination):
     return True
 
 
+def reconcile_rules(source_dir, codex_dir):
+    """Copy repo-owned rule files into Codex's global rules directory."""
+    rules_dir = codex_dir / "rules"
+    rules_dir.mkdir(parents=True, exist_ok=True)
+    fragments = sorted(source_dir.glob("*.rules"))
+    desired = {path.name for path in fragments}
+    changed = False
+
+    for source in fragments:
+        destination = rules_dir / source.name
+        if (
+            not destination.exists()
+            or destination.read_bytes() != source.read_bytes()
+        ):
+            shutil.copyfile(source, destination)
+            changed = True
+
+    for destination in rules_dir.glob("my-codex-stuff-*.rules"):
+        if destination.name not in desired:
+            destination.unlink()
+            changed = True
+
+    # Remove the old single file only when it still contains exactly these rules.
+    legacy = rules_dir / "default.rules"
+    if legacy.exists():
+
+        def normalize(text):
+            return "\n".join(
+                line.strip() for line in text.splitlines() if line.strip()
+            )
+
+        expected = "\n".join(
+            normalize(path.read_text(encoding="utf-8")) for path in fragments
+        )
+        if normalize(legacy.read_text(encoding="utf-8")) == expected:
+            legacy.unlink()
+            changed = True
+    return changed
+
+
 def main():
     CODEX_DIR.mkdir(parents=True, exist_ok=True)
     changed = reconcile_file(ROOT / "codex/config.toml", CODEX_DIR / "config.toml")
+    changed = reconcile_rules(ROOT / "codex/rules", CODEX_DIR) or changed
     source = ROOT / "codex/hooks.json"
     destination = CODEX_DIR / "hooks.json"
     desired = desired_hooks(source)

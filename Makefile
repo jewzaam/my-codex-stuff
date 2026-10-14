@@ -1,8 +1,10 @@
-.PHONY: check help install-guards reconcile test-unit test-quality
+.PHONY: check help install-guards reconcile test-unit test-quality test-rules
 
 HOME_DIR := $(subst \,/,$(HOME))
 CODEX_DIR ?= $(HOME_DIR)/.codex
 PYTHON ?= python3
+CODEX ?= codex
+CODEX_AVAILABLE := $(shell command -v $(CODEX) 2>/dev/null)
 # The PreToolUse guards are a dependency, not a copy: my-claude-stuff owns the
 # one definition and ships it as the `harness_guards` package. A sibling
 # checkout by default; a git URL works the same:
@@ -15,7 +17,7 @@ PIP_FLAGS ?=
 
 .DEFAULT_GOAL := check
 
-check: test-quality test-unit  ## Run the quality gate
+check: test-quality test-unit test-rules  ## Run the quality gate
 
 
 reconcile: install-guards  ## Merge repository files into ~/.codex
@@ -37,6 +39,14 @@ test-unit:  ## Run unit tests
 test-quality:  ## Validate Python, TOML, and JSON files
 	$(PYTHON) -m py_compile scripts/reconcile.py codex/observe-hook.py tests/*.py
 	$(PYTHON) -c 'import json, pathlib, tomllib; root = pathlib.Path("."); json.loads((root / "codex/hooks.json").read_text()); tomllib.loads((root / "codex/config.toml").read_text())'
+
+ifeq ($(CODEX_AVAILABLE),)
+test-rules:  ## Parse Codex rule files with Codex's policy checker when available
+	@echo "Skipping rule validation: $(CODEX) CLI is not installed"
+else
+test-rules:  ## Parse Codex rule files with Codex's policy checker when available
+	$(CODEX) execpolicy check $(foreach rule,$(wildcard codex/rules/*.rules),--rules $(rule)) -- codex-rule-validation
+endif
 
 help:  ## Show available targets
 	@grep -hE '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "%-20s %s\n", $$1, $$2}'
