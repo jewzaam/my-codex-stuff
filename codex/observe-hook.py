@@ -195,3 +195,15 @@ except Exception as exc:
         safe_endpoint,
         exc,
     )
+    print(
+        json.dumps(
+            {
+                "systemMessage": (
+                    f"Codex hook telemetry export failed: event={event} "
+                    f"endpoint={safe_endpoint} error={type(exc).__name__}; "
+                    f"details in {log_file}."
+                )
+            }
+        ),
+        flush=True,
+    )
