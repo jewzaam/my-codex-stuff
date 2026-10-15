@@ -3,12 +3,44 @@
 
 import hashlib
 import json
+import logging
+from logging.handlers import RotatingFileHandler
 import os
 import socket
 import sys
 import time
 import urllib.request
 from pathlib import Path
+from urllib.parse import urlsplit
+
+codex_home = Path(os.environ.get("CODEX_HOME") or (Path.home() / ".codex"))
+log_file = codex_home / "observe-hook.log"
+handler = None
+try:
+    codex_home.mkdir(mode=0o700, parents=True, exist_ok=True)
+    handler = RotatingFileHandler(
+        log_file, maxBytes=2 * 1024 * 1024, backupCount=1, encoding="utf-8"
+    )
+    os.chmod(log_file, 0o600)
+except OSError as exc:
+    if handler:
+        handler.close()
+    logging.basicConfig(
+        level=logging.WARNING,
+        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+        stream=sys.stderr,
+    )
+    logging.getLogger("codex-hook-observer").warning(
+        "file logging unavailable: path=%s error=%s", log_file, exc
+    )
+else:
+    logging.basicConfig(
+        level=logging.WARNING,
+        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+        handlers=[handler],
+    )
+logger = logging.getLogger("codex-hook-observer")
+
 
 def parse_resource_attributes(raw):
     """Parse OTEL_RESOURCE_ATTRIBUTES (W3C Baggage-ish: comma-separated k=v)."""
@@ -51,7 +83,7 @@ is_sandbox = cwd.startswith("/sandbox/") or any(
     resource.get(key)
     for key in ("sandbox.source", "sandbox.profile", "sandbox.openshell_name")
 )
-project_dir = Path(os.environ.get("CODEX_HOME") or (Path.home() / ".codex")) / "session-projects"
+project_dir = codex_home / "session-projects"
 project_path = (
     project_dir / (hashlib.sha256(conversation_id.encode()).hexdigest() + ".txt")
     if conversation_id else None
@@ -78,7 +110,7 @@ if not project:
             temp_path.replace(project_path)
             os.chmod(project_path, 0o600)
         except OSError as exc:
-            print(f"codex hook project pin failed: {exc}", file=sys.stderr)
+            logger.warning("project pin failed: %s", exc)
 resource["project"] = project
 
 attributes = {
@@ -154,4 +186,12 @@ try:
     if event == "SessionEnd" and project_path:
         project_path.unlink(missing_ok=True)
 except Exception as exc:
-    print(f"codex hook OTLP export failed: {exc}", file=sys.stderr)
+    target = urlsplit(endpoint)
+    safe_endpoint = f"{target.scheme}://{target.netloc.rsplit('@', 1)[-1]}{target.path}"
+    logger.error(
+        "OTLP export failed: event=%s session_id=%s endpoint=%s error=%s",
+        event,
+        conversation_id,
+        safe_endpoint,
+        exc,
+    )
