@@ -1,5 +1,5 @@
 prefix_rule(
-    pattern=["curl", "-sS", "--max-time", "10", "--request", "POST", "-G", "http://localhost:3000/api/ds/query"],
+    pattern=["curl", "-sS", "--max-time", "10", "--request", "POST", "http://localhost:3000/api/ds/query"],
     decision="allow",
     justification="Read local grafana queries",
 )
