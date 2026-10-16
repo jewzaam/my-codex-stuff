@@ -8,3 +8,16 @@ prefix_rule(
     decision="allow",
     justification="Read local Loki queries",
 )
+
+prefix_rule(
+    pattern=["curl", "-sS", "--max-time", "20", "--request", "POST", "http://localhost:3100/loki/api/v1/query"],
+    decision="allow",
+    justification="Read local Loki queries",
+)
+
+prefix_rule(
+    pattern=["curl", "-sS", "--max-time", "20", "--request", "POST", "http://localhost:3100/loki/api/v1/query_range"],
+    decision="allow",
+    justification="Read local Loki queries",
+)
+
