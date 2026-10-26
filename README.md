@@ -24,6 +24,46 @@ removes the old `default.rules` only when its rules still exactly match these
 files. `make test-rules` parses the files with Codex's policy checker and is
 part of `make check`.
 
+## Refresh a provider model catalog
+
+Run `scripts/codex-refresh-models.sh` from this checkout to refresh a profile's
+model catalog. It requires Bash, `curl`, `jq`, and Python 3.11 or newer (for
+`tomllib`).
+
+The profile file must already exist at `$CODEX_HOME/<PROFILE>.config.toml`;
+`CODEX_HOME` defaults to `~/.codex`. The script reads `model_provider` and
+`model_providers` from that file, falling back to `$CODEX_HOME/config.toml`.
+Provider definitions in the profile replace global definitions with the same
+name.
+
+The endpoint comes from the provider's `model_catalog_url`, or its `base_url`
+with `/models` appended. Set the environment variable named by the provider's
+`env_key` to supply the bearer token. For example, with a `work` profile whose
+provider uses `env_key = "WORK_API_KEY"`:
+
+```bash
+export WORK_API_KEY='your-provider-token'
+./scripts/codex-refresh-models.sh work
+```
+
+This replaces `$CODEX_HOME/work.models.json`. Override the endpoint, token, or
+output path when needed:
+
+```bash
+./scripts/codex-refresh-models.sh work \
+  --url https://provider.example/v1/models \
+  --token "$WORK_API_KEY" \
+  --output /tmp/work.models.json
+./scripts/codex-refresh-models.sh --help
+```
+
+Responses with a top-level `models` field are copied as a catalog; responses
+with a top-level `data` field are converted from model IDs. The conversion uses
+fixed capability defaults, including a 1,048,576-token context window and
+`low`, `high`, and `max` reasoning levels; check these against your provider
+before using the generated catalog. The script only writes the catalog; it
+does not update profile configuration or run during reconciliation.
+
 ## harness_guards
 
 `hooks.json` registers two PreToolUse guards that block restricted commands and

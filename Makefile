@@ -36,7 +36,8 @@ install-guards:  ## Install the harness_guards dependency for $(PYTHON)
 test-unit:  ## Run unit tests
 	$(PYTHON) -m unittest discover -s tests -v
 
-test-quality:  ## Validate Python, TOML, and JSON files
+test-quality:  ## Validate Bash, Python, TOML, and JSON files
+	bash -n scripts/codex-refresh-models.sh
 	$(PYTHON) -m py_compile scripts/reconcile.py codex/observe-hook.py tests/*.py
 	$(PYTHON) -c 'import json, pathlib, tomllib; root = pathlib.Path("."); json.loads((root / "codex/hooks.json").read_text()); tomllib.loads((root / "codex/config.toml").read_text())'
 
