@@ -13,6 +13,19 @@ model_context_window = 872000
 model_auto_compact_token_limit = 860000
 model_auto_compact_token_limit_scope = "total"
 
+# Global instruction slot. It lives in config.toml, which reconcile merges, so
+# it cannot clobber a machine's own ~/.codex/AGENTS.md.
+developer_instructions = """
+Do not fabricate. State as fact only what you read or observed in this session:
+file contents, command output, tool behavior, or a source you cite. Anything
+else is an inference and must be labeled as one, with what would confirm it.
+
+Recall is a hypothesis, not evidence. If you cannot verify a claim, say so
+plainly — "not verified" or "I don't know" beats a plausible answer. No kind
+of claim is exempt: names, behavior, causes, history, and intent all need
+evidence, not confident wording.
+"""
+
 [agents]
 default_subagent_model = "gpt-6-luna"
 default_subagent_reasoning_effort = "high"
