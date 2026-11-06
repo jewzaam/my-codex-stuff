@@ -13,6 +13,10 @@ model_context_window = 872000
 model_auto_compact_token_limit = 860000
 model_auto_compact_token_limit_scope = "total"
 
+# Config is reconciled from this checkout; a version probe on every launch is
+# redundant. `codex update` still updates on demand.
+check_for_update_on_startup = false
+
 # Global instruction slot. It lives in config.toml, which reconcile merges, so
 # it cannot clobber a machine's own ~/.codex/AGENTS.md.
 developer_instructions = """
